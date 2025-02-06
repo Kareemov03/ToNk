@@ -30,8 +30,27 @@ class Player(object):
         self.win_size = 500
         
         self.bullets = []
-        self.bullet_speed = 1
+        self.bullet_speed = 3
+
+        self.health = 3
+        self.heart = pygame.image.load("images/heart.png")
+
+    def __del__(self):
+        pass
+
         
+    @property
+    def next_move_xmax(self):
+        return self.x + (pixel_size * self.direction[0]) + self.tank.get_width()
+    @property
+    def next_move_xmin(self):
+        return self.x + (pixel_size * self.direction[0])
+    @property
+    def next_move_ymax(self):
+        return self.y + (pixel_size * self.direction[1]) + self.tank.get_height()
+    @property
+    def next_move_ymin(self):
+        return self.y + (pixel_size * self.direction[1])
 
     def draw(self, win):
 
@@ -48,6 +67,9 @@ class Player(object):
             bullet.draw(win)
             if bullet.projectile_travel_distance <= 0:
                 self.bullets.pop(self.bullets.index(bullet))
+
+        for i in range(self.health):
+            win.blit(self.heart, (self.x + (pixel_size * i), self.y + 60))
 
 
     def handle_input(self, key):
@@ -85,6 +107,7 @@ class Player(object):
             self.y %= self.win_size - self.tank.get_height() + pixel_size
 
     def launch_projectile(self):
+
         xy = self.get_bullet_spawn_point()
         if len(self.bullets) <= 3 :
             self.bullets.append(Projectiles(xy[0], xy[1], self.tile, self.look_direction, self.bullet_speed))
@@ -92,6 +115,16 @@ class Player(object):
     def get_bullet_spawn_point(self):
 
         return (self.x + (self.tank.get_width() * 1/3), self.y + (self.tank.get_height() * 1/3))
+
+    def Bullet_recive_damage(self, hit):
+            # "if this tank got hit by a bullet"
+       if hit:
+              self.health -= 1
+
+    def Tank_give_damage(self, hit, bullet_index):
+            # "if this tank hit another tank with a bullet"
+        if hit:
+            self.bullets.pop(bullet_index)
 
 
 
@@ -115,10 +148,9 @@ class Projectiles(object):
 
         self.y += self.look_direction[1] * self.velocity * pixel_size
 
-        self.projectile_travel_distance -= self.velocity
-        
-
+        self.projectile_travel_distance -= self.velocity        
 
     def draw(self, win):
+
         self.update_movement()
         win.blit(self.tile, (self.x,self.y))
