@@ -34,6 +34,8 @@ class Player(object):
 
         self.health = 3
         self.heart = pygame.image.load("images/heart.png")
+        self.alpha = 255
+        self.fade = True
 
     def __del__(self):
         pass
@@ -70,6 +72,10 @@ class Player(object):
 
         for i in range(self.health):
             win.blit(self.heart, (self.x + (pixel_size * i), self.y + 60))
+
+        if self.fade:
+            self.alpha -= 20
+            self.heart.set_alpha(max(0,self.alpha))
 
 
     def handle_input(self, key):
@@ -120,6 +126,7 @@ class Player(object):
             # "if this tank got hit by a bullet"
        if hit:
               self.health -= 1
+              self.alpha = 255
 
     def Tank_give_damage(self, hit, bullet_index):
             # "if this tank hit another tank with a bullet"
